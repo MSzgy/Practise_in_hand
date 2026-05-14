@@ -3,6 +3,7 @@ from pathlib import Path
 from time import perf_counter
 
 import gradio as gr
+import spaces
 import torch
 from transformers import (
     AutoConfig,
@@ -79,7 +80,7 @@ def model_load_kwargs():
     return {"torch_dtype": torch.float32}
 
 
-@lru_cache(maxsize=2)
+@lru_cache(maxsize=1)
 def load_components(model_id):
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     config = AutoConfig.from_pretrained(model_id)
@@ -174,6 +175,7 @@ def explain_tokens(tokenizer, prompt):
     return "\n".join(lines)
 
 
+@spaces.GPU(duration=120)
 def run_experiment(
     lesson_name,
     model_id,
@@ -275,7 +277,7 @@ def lesson_file_name(lesson_name):
     return LESSONS.get(lesson_name, "")
 
 
-with gr.Blocks(title="大模型文本部署实验台", theme=gr.themes.Soft()) as demo:
+with gr.Blocks(title="大模型文本部署实验台") as demo:
     gr.Markdown(
         """
 # 大模型文本部署实验台
@@ -336,7 +338,7 @@ with gr.Blocks(title="大模型文本部署实验台", theme=gr.themes.Soft()) a
             with gr.Row():
                 lesson_summary = gr.Markdown(value=lesson_note("00 pipeline 自动配置"))
                 runtime = gr.Textbox(
-                    value=f"Space runtime: {device_summary()}",
+                    value="ZeroGPU 会在点击运行后为 @spaces.GPU 函数临时分配 GPU。",
                     label="运行环境",
                     interactive=False,
                 )
@@ -391,4 +393,4 @@ with gr.Blocks(title="大模型文本部署实验台", theme=gr.themes.Soft()) a
 
 
 if __name__ == "__main__":
-    demo.queue(max_size=16).launch()
+    demo.queue(max_size=16).launch(ssr_mode=False)
