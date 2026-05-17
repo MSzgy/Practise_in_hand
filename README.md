@@ -16,7 +16,7 @@ pinned: false
 
 ## 当前实验
 
-- [app.py](./app.py): Gradio 文本部署实验台，可以边看理论边运行 Hugging Face 文本模型实验。
+- [app.py](./app.py): Gradio 文本部署实验台，默认使用 `dphn/dolphin-2.9.4-llama3.1-8b`，可以边看理论边运行 Hugging Face 文本模型实验。
 - [text/README.md](./text/README.md): 文本模型 Hugging Face 代码讲解，从 `pipeline` 自动配置逐步拆到 tokenizer、model、generation config、streamer 和 KV cache。
 
 ## 面试向理论笔记

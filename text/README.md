@@ -10,7 +10,7 @@
 -> 04_forward_logits_kv_cache.py
 ```
 
-默认模型使用 `HuggingFaceTB/SmolLM2-135M-Instruct`，它足够小，适合学习 Hugging Face Transformers 的调用方式。它不是为了回答质量最强，而是为了让你能在普通环境里更容易跑通链路。
+默认模型使用 `dphn/dolphin-2.9.4-llama3.1-8b`，这是一个基于 Llama 3.1 8B 的 Dolphin ChatML 模型，适合在 ZeroGPU 上观察 8B 级别文本模型部署链路。它比最小 Demo 模型更接近真实部署时的显存、冷启动和生成延迟表现。
 
 ## 0. 最简单：pipeline 自动配置
 

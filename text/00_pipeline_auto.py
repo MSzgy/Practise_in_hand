@@ -1,7 +1,7 @@
 from transformers import pipeline
 
 
-MODEL_ID = "HuggingFaceTB/SmolLM2-135M-Instruct"
+MODEL_ID = "dphn/dolphin-2.9.4-llama3.1-8b"
 
 
 def print_pipeline_answer(result):

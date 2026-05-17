@@ -13,7 +13,7 @@ from transformers import (
 )
 
 
-DEFAULT_MODEL_ID = "HuggingFaceTB/SmolLM2-135M-Instruct"
+DEFAULT_MODEL_ID = "dphn/dolphin-2.9.4-llama3.1-8b"
 ROOT = Path(__file__).parent
 TEXT_DIR = ROOT / "text"
 THEORY_PATH = ROOT / "notes" / "deployment_interview_theory.md"
@@ -76,7 +76,8 @@ def device_summary():
 
 def model_load_kwargs():
     if torch.cuda.is_available():
-        return {"torch_dtype": torch.float16, "device_map": "auto"}
+        dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+        return {"torch_dtype": dtype, "device_map": "auto"}
     return {"torch_dtype": torch.float32}
 
 
@@ -283,6 +284,8 @@ with gr.Blocks(title="大模型文本部署实验台") as demo:
 # 大模型文本部署实验台
 
 从 Hugging Face `pipeline` 自动配置开始，逐步拆到 tokenizer、model、generation config、streaming、logits 和 KV cache。
+
+默认模型：`dphn/dolphin-2.9.4-llama3.1-8b`。这是一个基于 Llama 3.1 8B 的 Dolphin ChatML 模型，适合在 ZeroGPU 上观察 8B 级别文本模型部署链路。
 """
     )
 
