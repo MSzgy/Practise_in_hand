@@ -24,6 +24,7 @@ LESSONS = {
     "02 模块分开配置": "02_split_configuration.py",
     "03 streaming + stopping": "03_streaming_and_stopping.py",
     "04 forward + logits + KV cache": "04_forward_logits_kv_cache.py",
+    "05 架构 + 中间态输出": "05_architecture_and_intermediates.py",
 }
 
 LESSON_NOTES = {
@@ -51,6 +52,11 @@ streaming 不是减少总计算量，而是让用户更早看到输出。
 不调用 `generate()`，直接看一次 forward。
 
 模型输出 logits，解码策略从 logits 中选下一个 token。`past_key_values` 就是 KV cache，是长上下文和高并发部署里的显存大头之一。
+""",
+    "05 架构 + 中间态输出": """
+这一层用 `print(model)`、`output_hidden_states=True` 和可选的 `output_attentions=True` 看模型内部。
+
+`hidden_states` 能看到 embedding 和每层 decoder block 后的表示；`attentions` 能看到每层每个 head 对输入 token 的注意力矩阵，但它的显存开销是 seq_len 平方级，长 prompt 时要谨慎开启。
 """,
 }
 
@@ -164,6 +170,85 @@ def inspect_config(config, tokenizer, model):
     return "\n".join(f"{key}: {value}" for key, value in rows)
 
 
+def tensor_summary(value):
+    if value is None:
+        return "None"
+    if hasattr(value, "shape"):
+        return (
+            f"shape={tuple(value.shape)}, dtype={value.dtype}, device={value.device}"
+        )
+    return type(value).__name__
+
+
+def architecture_summary(config, model):
+    lines = [
+        f"model class: {type(model).__name__}",
+        f"model_type: {getattr(config, 'model_type', 'unknown')}",
+        f"hidden_size: {getattr(config, 'hidden_size', 'unknown')}",
+        f"num_hidden_layers: {getattr(config, 'num_hidden_layers', 'unknown')}",
+        f"num_attention_heads: {getattr(config, 'num_attention_heads', 'unknown')}",
+        f"num_key_value_heads: {getattr(config, 'num_key_value_heads', 'unknown')}",
+        f"vocab_size: {getattr(config, 'vocab_size', 'unknown')}",
+        "",
+        "top-level modules:",
+    ]
+
+    for name, module in model.named_children():
+        lines.append(f"- {name}: {type(module).__name__}")
+
+    if hasattr(model, "model") and hasattr(model.model, "layers"):
+        layers = model.model.layers
+        lines.extend(["", f"decoder layers: {len(layers)}"])
+        if layers:
+            first_layer = layers[0]
+            lines.append("first decoder layer modules:")
+            for name, module in first_layer.named_children():
+                lines.append(f"- {name}: {type(module).__name__}")
+
+    lines.extend(["", "full model repr:", str(model)])
+    return "\n".join(lines)
+
+
+def summarize_tensor_sequence(name, values):
+    if values is None:
+        return f"{name}: None"
+
+    lines = [f"{name} count: {len(values)}"]
+    for index, value in enumerate(values):
+        lines.append(f"{name}[{index:02d}]: {tensor_summary(value)}")
+    return "\n".join(lines)
+
+
+def summarize_cache(cache):
+    if cache is None:
+        return "KV cache: None"
+
+    lines = [f"KV cache type: {type(cache).__name__}"]
+
+    try:
+        lines.append(f"KV cache layers: {len(cache)}")
+    except TypeError:
+        lines.append("KV cache layers: unknown")
+
+    if hasattr(cache, "get_seq_length"):
+        lines.append(f"KV cache sequence length: {cache.get_seq_length()}")
+
+    if hasattr(cache, "key_cache") and getattr(cache, "key_cache"):
+        lines.append(
+            f"layer0 key: {tensor_summary(cache.key_cache[0])}"
+        )
+        lines.append(
+            f"layer0 value: {tensor_summary(cache.value_cache[0])}"
+        )
+    elif isinstance(cache, (tuple, list)) and cache:
+        first_layer = cache[0]
+        if isinstance(first_layer, (tuple, list)) and len(first_layer) >= 2:
+            lines.append(f"layer0 key: {tensor_summary(first_layer[0])}")
+            lines.append(f"layer0 value: {tensor_summary(first_layer[1])}")
+
+    return "\n".join(lines)
+
+
 def explain_tokens(tokenizer, prompt):
     encoded = tokenizer(prompt, return_tensors="pt")
     ids = encoded["input_ids"][0].tolist()
@@ -186,6 +271,7 @@ def run_experiment(
     do_sample,
     temperature,
     top_p,
+    output_attentions,
 ):
     if not user_prompt.strip():
         raise gr.Error("请输入 user prompt。")
@@ -234,6 +320,65 @@ def run_experiment(
             "device": str(model_device(model)),
         }
         return answer, inspect_config(config, tokenizer, model), explain_tokens(tokenizer, prompt), metrics
+
+    if lesson_name == "05 架构 + 中间态输出":
+        try:
+            with torch.no_grad():
+                outputs = model(
+                    **inputs,
+                    use_cache=True,
+                    output_hidden_states=True,
+                    output_attentions=bool(output_attentions),
+                    return_dict=True,
+                )
+        except Exception as exc:
+            if output_attentions:
+                raise gr.Error(
+                    "开启 output_attentions 时 forward 失败。attention 矩阵显存开销较大，"
+                    "可以先关闭 output_attentions 再观察 hidden_states 和 KV cache。"
+                ) from exc
+            raise
+
+        logits = outputs.logits
+        last_token_logits = logits[:, -1, :]
+        next_token_id = last_token_logits.argmax(dim=-1)
+        next_token = tokenizer.decode(next_token_id)
+        elapsed = perf_counter() - start
+
+        answer = "\n\n".join(
+            [
+                "这是一次架构和中间态观察，不是完整生成。",
+                "\n".join(
+                    [
+                        f"outputs type: {type(outputs).__name__}",
+                        f"outputs keys: {list(outputs.keys())}",
+                        f"logits: {tensor_summary(logits)}",
+                        f"last token logits: {tensor_summary(last_token_logits)}",
+                        f"greedy next token id: {next_token_id.item()}",
+                        f"greedy next token: {next_token!r}",
+                    ]
+                ),
+                summarize_tensor_sequence("hidden_states", outputs.hidden_states),
+                summarize_tensor_sequence("attentions", outputs.attentions),
+                summarize_cache(outputs.past_key_values),
+            ]
+        )
+
+        metrics = {
+            "lesson": lesson_name,
+            "input_tokens": input_len,
+            "elapsed_seconds": round(elapsed, 3),
+            "logits_shape": list(logits.shape),
+            "hidden_state_count": len(outputs.hidden_states)
+            if outputs.hidden_states is not None
+            else 0,
+            "attention_count": len(outputs.attentions)
+            if outputs.attentions is not None
+            else 0,
+            "output_attentions": bool(output_attentions),
+            "device": str(model_device(model)),
+        }
+        return answer, architecture_summary(config, model), explain_tokens(tokenizer, prompt), metrics
 
     gen_config = generation_config(
         tokenizer,
@@ -336,6 +481,10 @@ with gr.Blocks(title="大模型文本部署实验台") as demo:
                         step=0.05,
                         label="top_p",
                     )
+                    output_attentions = gr.Checkbox(
+                        value=False,
+                        label="output_attentions",
+                    )
                     run_btn = gr.Button("运行", variant="primary")
 
             with gr.Row():
@@ -350,7 +499,7 @@ with gr.Blocks(title="大模型文本部署实验台") as demo:
                 answer = gr.Textbox(label="模型输出", lines=12)
                 metrics = gr.JSON(label="指标")
 
-            with gr.Accordion("token 与配置观察", open=False):
+            with gr.Accordion("token、配置与架构观察", open=False):
                 with gr.Row():
                     config_view = gr.Textbox(label="模型与配置", lines=10)
                     token_view = gr.Textbox(label="token 预览", lines=10)
@@ -388,6 +537,7 @@ with gr.Blocks(title="大模型文本部署实验台") as demo:
             do_sample,
             temperature,
             top_p,
+            output_attentions,
         ],
         outputs=[answer, config_view, token_view, metrics],
     )

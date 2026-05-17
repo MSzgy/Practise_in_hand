@@ -8,6 +8,7 @@
 -> 02_split_configuration.py
 -> 03_streaming_and_stopping.py
 -> 04_forward_logits_kv_cache.py
+-> 05_architecture_and_intermediates.py
 ```
 
 默认模型使用 `dphn/dolphin-2.9.4-llama3.1-8b`，这是一个基于 Llama 3.1 8B 的 Dolphin ChatML 模型，适合在 ZeroGPU 上观察 8B 级别文本模型部署链路。它比最小 Demo 模型更接近真实部署时的显存、冷启动和生成延迟表现。
@@ -101,6 +102,26 @@ next_token_id = logits.argmax(dim=-1)
 
 `outputs.past_key_values` 就是 KV cache。它是部署面试中的高频点：长上下文和高并发会让 KV cache 变大，从而影响显存和吞吐。
 
+## 5. 看模型架构和中间态输出
+
+[05_architecture_and_intermediates.py](./05_architecture_and_intermediates.py) 打印：
+
+- `model.config`: 模型层数、hidden size、attention heads、vocab size 等配置。
+- `print(model)`: Hugging Face / PyTorch 模型模块树。
+- `outputs.logits`: 每个位置对词表的预测分数。
+- `outputs.hidden_states`: embedding 输出和每层 decoder block 后的 hidden state。
+- `outputs.attentions`: 每层 attention map，默认关闭，长 prompt 时显存开销很高。
+- `outputs.past_key_values`: 生成时复用的 KV cache。
+
+常见维度可以这样记：
+
+```text
+logits        -> [batch_size, seq_len, vocab_size]
+hidden_states -> 每层 [batch_size, seq_len, hidden_size]
+attentions    -> 每层 [batch_size, num_heads, seq_len, seq_len]
+KV cache      -> 每层 key/value，通常和 batch、KV heads、seq_len、head_dim 有关
+```
+
 ## 推荐运行方式
 
 ```bash
@@ -110,6 +131,7 @@ python text/01_auto_tokenizer_model.py
 python text/02_split_configuration.py
 python text/03_streaming_and_stopping.py
 python text/04_forward_logits_kv_cache.py
+python text/05_architecture_and_intermediates.py
 ```
 
 第一次运行会下载模型。没有 GPU 也可以学习这些例子，只是速度会慢一些。
