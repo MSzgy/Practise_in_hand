@@ -26,6 +26,7 @@ pinned: false
 
 - [app.py](./app.py): Gradio 文本部署实验台，默认使用 `Qwen/Qwen2.5-0.5B-Instruct`，可以边看理论边运行文本模型实验。在魔搭 Notebook 中会优先通过 ModelScope 下载模型。
 - [text/README.md](./text/README.md): 文本模型 Hugging Face 代码讲解，从 `pipeline` 自动配置逐步拆到 tokenizer、model、generation config、streamer 和 KV cache。`text/00` 到 `text/05` 同时提供 `.py` 脚本和 `.ipynb` 学习版 notebook。
+- [advanced/README.md](./advanced/README.md): 文本大模型高级教程，覆盖量化、LoRA 微调、KV cache、batching、prefill/decode 和部署面试高频问题。
 
 ## 面试向理论笔记
 
@@ -35,9 +36,10 @@ pinned: false
 
 1. Demo 部署：Gradio、Spaces、ZeroGPU、依赖管理。
 2. 文本模型部署：tokenizer、chat template、streaming、vLLM、TGI、OpenAI-compatible API。
-3. 音频模型部署：ASR、TTS、采样率、切片、实时因子。
-4. 图像和视频部署：图片理解、视频抽帧、视频生成、异步任务队列。
-5. 生产化部署：Docker、GPU 显存估算、批处理、缓存、监控、压测、成本优化。
+3. 文本高级部署：dtype、量化、LoRA 微调、KV cache、batching、prefill/decode。
+4. 音频模型部署：ASR、TTS、采样率、切片、实时因子。
+5. 图像和视频部署：图片理解、视频抽帧、视频生成、异步任务队列。
+6. 生产化部署：Docker、GPU 显存估算、批处理、缓存、监控、压测、成本优化。
 
 ## 官方参考
 
