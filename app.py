@@ -1,9 +1,9 @@
 from functools import lru_cache
+import os
 from pathlib import Path
 from time import perf_counter
 
 import gradio as gr
-import spaces
 import torch
 from transformers import (
     AutoConfig,
@@ -12,8 +12,14 @@ from transformers import (
     GenerationConfig,
 )
 
+try:
+    import spaces
+except ImportError:
+    spaces = None
 
-DEFAULT_MODEL_ID = "dphn/dolphin-2.9.4-llama3.1-8b"
+
+DEFAULT_MODEL_ID = os.getenv("MODEL_ID", "Qwen/Qwen2.5-0.5B-Instruct")
+MODEL_SOURCE = os.getenv("MODEL_SOURCE", "auto").lower()
 ROOT = Path(__file__).parent
 TEXT_DIR = ROOT / "text"
 THEORY_PATH = ROOT / "notes" / "deployment_interview_theory.md"
@@ -87,18 +93,52 @@ def model_load_kwargs():
     return {"torch_dtype": torch.float32}
 
 
+def gpu(duration):
+    if spaces is None:
+        return lambda fn: fn
+    return spaces.GPU(duration=duration)
+
+
+@lru_cache(maxsize=4)
+def resolve_model_path(model_id):
+    model_id = model_id.strip() or DEFAULT_MODEL_ID
+    if Path(model_id).exists():
+        return model_id
+
+    if MODEL_SOURCE not in {"auto", "modelscope"}:
+        return model_id
+
+    try:
+        from modelscope import snapshot_download
+    except ImportError:
+        if MODEL_SOURCE == "modelscope":
+            raise RuntimeError(
+                "MODEL_SOURCE=modelscope 需要安装 modelscope。请先运行: pip install modelscope"
+            )
+        return model_id
+
+    try:
+        return snapshot_download(model_id)
+    except Exception:
+        if MODEL_SOURCE == "modelscope":
+            raise
+        return model_id
+
+
 @lru_cache(maxsize=1)
 def load_components(model_id):
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
-    config = AutoConfig.from_pretrained(model_id)
+    resolved_model_path = resolve_model_path(model_id)
+    tokenizer = AutoTokenizer.from_pretrained(resolved_model_path, trust_remote_code=True)
+    config = AutoConfig.from_pretrained(resolved_model_path, trust_remote_code=True)
 
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
     model = AutoModelForCausalLM.from_pretrained(
-        model_id,
+        resolved_model_path,
         config=config,
         low_cpu_mem_usage=True,
+        trust_remote_code=True,
         **model_load_kwargs(),
     )
 
@@ -261,7 +301,7 @@ def explain_tokens(tokenizer, prompt):
     return "\n".join(lines)
 
 
-@spaces.GPU(duration=120)
+@gpu(duration=120)
 def run_experiment(
     lesson_name,
     model_id,
@@ -430,7 +470,7 @@ with gr.Blocks(title="大模型文本部署实验台") as demo:
 
 从 Hugging Face `pipeline` 自动配置开始，逐步拆到 tokenizer、model、generation config、streaming、logits 和 KV cache。
 
-默认模型：`dphn/dolphin-2.9.4-llama3.1-8b`。这是一个基于 Llama 3.1 8B 的 Dolphin ChatML 模型，适合在 ZeroGPU 上观察 8B 级别文本模型部署链路。
+默认模型：`Qwen/Qwen2.5-0.5B-Instruct`。在魔搭 Notebook 中会优先通过 ModelScope 下载模型；如果你有更大的 GPU 额度，可以把模型改成 `Qwen/Qwen2.5-7B-Instruct`。
 """
     )
 
@@ -490,7 +530,7 @@ with gr.Blocks(title="大模型文本部署实验台") as demo:
             with gr.Row():
                 lesson_summary = gr.Markdown(value=lesson_note("00 pipeline 自动配置"))
                 runtime = gr.Textbox(
-                    value="ZeroGPU 会在点击运行后为 @spaces.GPU 函数临时分配 GPU。",
+                    value=f"当前运行环境：{device_summary()}。魔搭 Notebook 中请先确认右上角已经选择 GPU。",
                     label="运行环境",
                     interactive=False,
                 )
@@ -546,4 +586,7 @@ with gr.Blocks(title="大模型文本部署实验台") as demo:
 
 
 if __name__ == "__main__":
-    demo.queue(max_size=16).launch(ssr_mode=False)
+    try:
+        demo.queue(max_size=16).launch(ssr_mode=False)
+    except TypeError:
+        demo.queue(max_size=16).launch()

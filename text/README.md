@@ -3,19 +3,19 @@
 这一部分从最简单的“自动挡”开始，逐步拆开文本模型部署中的组件。建议按文件顺序看：
 
 ```text
-00_pipeline_auto.py
--> 01_auto_tokenizer_model.py
--> 02_split_configuration.py
--> 03_streaming_and_stopping.py
--> 04_forward_logits_kv_cache.py
--> 05_architecture_and_intermediates.py
+00_pipeline_auto.ipynb / 00_pipeline_auto.py
+-> 01_auto_tokenizer_model.ipynb / 01_auto_tokenizer_model.py
+-> 02_split_configuration.ipynb / 02_split_configuration.py
+-> 03_streaming_and_stopping.ipynb / 03_streaming_and_stopping.py
+-> 04_forward_logits_kv_cache.ipynb / 04_forward_logits_kv_cache.py
+-> 05_architecture_and_intermediates.ipynb / 05_architecture_and_intermediates.py
 ```
 
-默认模型使用 `dphn/dolphin-2.9.4-llama3.1-8b`，这是一个基于 Llama 3.1 8B 的 Dolphin ChatML 模型，适合在 ZeroGPU 上观察 8B 级别文本模型部署链路。它比最小 Demo 模型更接近真实部署时的显存、冷启动和生成延迟表现。
+默认交互模型使用 `Qwen/Qwen2.5-0.5B-Instruct`，适合在 Notebook 里快速验证 tokenizer、generate、logits 和 KV cache 链路。如果你有更大的 GPU 显存额度，可以把模型改成 `Qwen/Qwen2.5-7B-Instruct` 来观察更接近真实部署的显存、冷启动和生成延迟表现。
 
 ## 0. 最简单：pipeline 自动配置
 
-[00_pipeline_auto.py](./00_pipeline_auto.py) 使用：
+[00_pipeline_auto.ipynb](./00_pipeline_auto.ipynb) / [00_pipeline_auto.py](./00_pipeline_auto.py) 使用：
 
 ```python
 from transformers import pipeline
@@ -38,7 +38,7 @@ pipe(messages)
 
 ## 1. 拆开 tokenizer 和 model
 
-[01_auto_tokenizer_model.py](./01_auto_tokenizer_model.py) 显式使用：
+[01_auto_tokenizer_model.ipynb](./01_auto_tokenizer_model.ipynb) / [01_auto_tokenizer_model.py](./01_auto_tokenizer_model.py) 显式使用：
 
 ```python
 AutoTokenizer.from_pretrained(...)
@@ -56,7 +56,7 @@ model.generate(...)
 
 ## 2. 每个模块分开配置
 
-[02_split_configuration.py](./02_split_configuration.py) 把配置拆成几类：
+[02_split_configuration.ipynb](./02_split_configuration.ipynb) / [02_split_configuration.py](./02_split_configuration.py) 把配置拆成几类：
 
 | 模块 | Hugging Face 对象 | 负责什么 |
 | --- | --- | --- |
@@ -72,7 +72,7 @@ model.generate(...)
 
 ## 3. 流式输出和停止条件
 
-[03_streaming_and_stopping.py](./03_streaming_and_stopping.py) 加了：
+[03_streaming_and_stopping.ipynb](./03_streaming_and_stopping.ipynb) / [03_streaming_and_stopping.py](./03_streaming_and_stopping.py) 加了：
 
 - `TextStreamer`: 生成一个 token 就打印一段文本。
 - `StoppingCriteria`: 自定义停止逻辑。
@@ -82,7 +82,7 @@ model.generate(...)
 
 ## 4. 看一次 forward：logits 和 KV cache
 
-[04_forward_logits_kv_cache.py](./04_forward_logits_kv_cache.py) 不调用 `generate()`，而是直接：
+[04_forward_logits_kv_cache.ipynb](./04_forward_logits_kv_cache.ipynb) / [04_forward_logits_kv_cache.py](./04_forward_logits_kv_cache.py) 不调用 `generate()`，而是直接：
 
 ```python
 outputs = model(**inputs, use_cache=True)
@@ -104,7 +104,7 @@ next_token_id = logits.argmax(dim=-1)
 
 ## 5. 看模型架构和中间态输出
 
-[05_architecture_and_intermediates.py](./05_architecture_and_intermediates.py) 打印：
+[05_architecture_and_intermediates.ipynb](./05_architecture_and_intermediates.ipynb) / [05_architecture_and_intermediates.py](./05_architecture_and_intermediates.py) 打印：
 
 - `model.config`: 模型层数、hidden size、attention heads、vocab size 等配置。
 - `print(model)`: Hugging Face / PyTorch 模型模块树。
@@ -123,6 +123,14 @@ KV cache      -> 每层 key/value，通常和 batch、KV heads、seq_len、head_
 ```
 
 ## 推荐运行方式
+
+魔搭 Notebook 推荐直接运行仓库根目录的：
+
+```text
+modelscope_interactive_notebook.ipynb
+```
+
+本地脚本运行方式：
 
 ```bash
 pip install -r requirements.txt

@@ -2,4 +2,5 @@ torch
 transformers>=4.48.0
 accelerate>=1.0.0
 sentencepiece
-spaces
+gradio>=4.44.0
+modelscope>=1.20.0
