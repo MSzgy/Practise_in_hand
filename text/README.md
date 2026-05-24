@@ -9,6 +9,8 @@
 -> 03_streaming_and_stopping.ipynb / 03_streaming_and_stopping.py
 -> 04_forward_logits_kv_cache.ipynb / 04_forward_logits_kv_cache.py
 -> 05_architecture_and_intermediates.ipynb / 05_architecture_and_intermediates.py
+-> 06_tokenizer_chat_template_edge_cases.ipynb
+-> 07_decoding_strategies.ipynb
 ```
 
 默认交互模型使用 `Qwen/Qwen2.5-0.5B-Instruct`，适合在 Notebook 里快速验证 tokenizer、generate、logits 和 KV cache 链路。如果你有更大的 GPU 显存额度，可以把模型改成 `Qwen/Qwen2.5-7B-Instruct` 来观察更接近真实部署的显存、冷启动和生成延迟表现。
@@ -122,6 +124,32 @@ attentions    -> 每层 [batch_size, num_heads, seq_len, seq_len]
 KV cache      -> 每层 key/value，通常和 batch、KV heads、seq_len、head_dim 有关
 ```
 
+## 6. tokenizer、chat template 和输入边界
+
+[06_tokenizer_chat_template_edge_cases.ipynb](./06_tokenizer_chat_template_edge_cases.ipynb) 专门练输入侧高频坑：
+
+- 普通文本和 chat template 的 token 数差异。
+- special tokens、`pad_token_id`、`eos_token_id` 的调试方式。
+- padding side、truncation 和 attention mask 对 batch 推理的影响。
+- SFT 数据中 prompt label 置为 `-100`，只监督 assistant answer。
+
+面试里可以这样说：
+
+> Instruct 模型部署时我会先确认最终 prompt 是否经过正确的 chat template，再检查 token 数、截断位置、special tokens、attention mask 和 pad/eos 配置。很多线上“模型变笨”的问题其实是输入格式不匹配。
+
+## 7. decoding 策略和生成参数
+
+[07_decoding_strategies.ipynb](./07_decoding_strategies.ipynb) 对比：
+
+- greedy、beam search 和 sampling。
+- temperature、top-k、top-p、repetition penalty。
+- 直接查看下一 token logits/probability。
+- 不同任务下生成参数如何影响稳定性、创造性、重复和延迟。
+
+面试里可以这样说：
+
+> `generate()` 本质是循环 forward，从最后一个位置的 logits 里选下一个 token。greedy/beam 更确定，sampling 更开放；temperature 改变分布尖锐程度，top-k/top-p 裁剪候选集合。生产里要按任务设置参数边界，并记录完整 generation config 方便排障。
+
 ## 推荐运行方式
 
 魔搭 Notebook 推荐直接运行仓库根目录的：
@@ -143,6 +171,8 @@ python text/05_architecture_and_intermediates.py
 ```
 
 第一次运行会下载模型。没有 GPU 也可以学习这些例子，只是速度会慢一些。
+
+`06` 和 `07` 目前是 notebook 练习版，建议直接在 Jupyter / ModelScope Notebook 中运行。
 
 ## 面试记忆线
 

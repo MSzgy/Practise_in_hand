@@ -7,6 +7,8 @@
 -> 11_lora_finetuning_sft.ipynb
 -> 12_kv_cache_batching_prefill_decode.ipynb
 -> 13_interview_drills.ipynb
+-> 14_transformer_internals_attention_rope_gqa.ipynb
+-> 15_rag_evaluation_serving_patterns.ipynb
 ```
 
 ## 主题
@@ -15,6 +17,8 @@
 - [11_lora_finetuning_sft.ipynb](./11_lora_finetuning_sft.ipynb): 用 LoRA 做一个最小 SFT 微调，理解 adapter、可训练参数和保存/加载。
 - [12_kv_cache_batching_prefill_decode.ipynb](./12_kv_cache_batching_prefill_decode.ipynb): 拆解 prefill、decode、KV cache、batch padding 和吞吐指标。
 - [13_interview_drills.ipynb](./13_interview_drills.ipynb): 文本大模型部署面试高频问题、公式和可运行检查代码。
+- [14_transformer_internals_attention_rope_gqa.ipynb](./14_transformer_internals_attention_rope_gqa.ipynb): 用配置和小张量实验解释 hidden size、attention head、MHA/GQA/MQA、RoPE、参数量和 KV cache 公式。
+- [15_rag_evaluation_serving_patterns.ipynb](./15_rag_evaluation_serving_patterns.ipynb): 用轻量 TF-IDF 检索练 RAG 流程、chunk/context budget、Recall@k/MRR、引用检查，以及 TTFT/TPOT/吞吐等服务化指标。
 
 ## 魔搭 Notebook 建议
 

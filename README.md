@@ -25,8 +25,10 @@ pinned: false
 ## 当前实验
 
 - [app.py](./app.py): Gradio 文本部署实验台，默认使用 `Qwen/Qwen2.5-0.5B-Instruct`，可以边看理论边运行文本模型实验。在魔搭 Notebook 中会优先通过 ModelScope 下载模型。
-- [text/README.md](./text/README.md): 文本模型 Hugging Face 代码讲解，从 `pipeline` 自动配置逐步拆到 tokenizer、model、generation config、streamer 和 KV cache。`text/00` 到 `text/05` 同时提供 `.py` 脚本和 `.ipynb` 学习版 notebook。
-- [advanced/README.md](./advanced/README.md): 文本大模型高级教程，覆盖量化、LoRA 微调、KV cache、batching、prefill/decode 和部署面试高频问题。
+- [principles/README.md](./principles/README.md): 大模型原理练习路线，覆盖 next-token loss、label shift、perplexity、decoder block 手写、RMSNorm、SwiGLU、SFT、DPO、偏好对齐、评测、架构家族、MoE 和长上下文。
+- [text/README.md](./text/README.md): 文本模型 Hugging Face 代码讲解，从 `pipeline` 自动配置逐步拆到 tokenizer、model、generation config、streamer、KV cache、chat template 输入边界和 decoding 策略。`text/00` 到 `text/05` 同时提供 `.py` 脚本和 `.ipynb` 学习版 notebook，`text/06` 到 `text/07` 是面试实践 notebook。
+- [advanced/README.md](./advanced/README.md): 文本大模型高级教程，覆盖量化、LoRA 微调、KV cache、batching、prefill/decode、Transformer 内部结构、RAG 评测服务化和部署面试高频问题。
+- [deployment/README.md](./deployment/README.md): 大模型部署框架和优化框架学习路线，覆盖 vLLM、TGI、SGLang、TensorRT-LLM、llama.cpp、Triton、Ray Serve、KServe、BentoML、FlashAttention、FlashInfer、ONNX Runtime、torch.compile 等。
 
 ## 面试向理论笔记
 
@@ -35,11 +37,13 @@ pinned: false
 ## 学习主线
 
 1. Demo 部署：Gradio、Spaces、ZeroGPU、依赖管理。
-2. 文本模型部署：tokenizer、chat template、streaming、vLLM、TGI、OpenAI-compatible API。
-3. 文本高级部署：dtype、量化、LoRA 微调、KV cache、batching、prefill/decode。
-4. 音频模型部署：ASR、TTS、采样率、切片、实时因子。
-5. 图像和视频部署：图片理解、视频抽帧、视频生成、异步任务队列。
-6. 生产化部署：Docker、GPU 显存估算、批处理、缓存、监控、压测、成本优化。
+2. 模型原理：next-token prediction、cross entropy、perplexity、Transformer decoder block、SFT、DPO、架构家族、MoE、长上下文、评测。
+3. 文本模型部署：tokenizer、chat template、streaming、vLLM、TGI、OpenAI-compatible API。
+4. 文本高级部署：dtype、量化、LoRA 微调、KV cache、batching、prefill/decode、GQA/RoPE、RAG 评测和服务化指标。
+5. 音频模型部署：ASR、TTS、采样率、切片、实时因子。
+6. 图像和视频部署：图片理解、视频抽帧、视频生成、异步任务队列。
+7. 部署框架和优化：vLLM、TGI、SGLang、TensorRT-LLM、Triton、Ray Serve、KServe、BentoML、FlashAttention、FlashInfer、ONNX Runtime。
+8. 生产化部署：Docker、GPU 显存估算、批处理、缓存、监控、压测、成本优化。
 
 ## 官方参考
 
