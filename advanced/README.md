@@ -9,6 +9,7 @@
 -> 13_interview_drills.ipynb
 -> 14_transformer_internals_attention_rope_gqa.ipynb
 -> 15_rag_evaluation_serving_patterns.ipynb
+-> 16_rag_from_scratch_principles.ipynb
 ```
 
 ## 主题
@@ -19,6 +20,7 @@
 - [13_interview_drills.ipynb](./13_interview_drills.ipynb): 文本大模型部署面试高频问题、公式和可运行检查代码。
 - [14_transformer_internals_attention_rope_gqa.ipynb](./14_transformer_internals_attention_rope_gqa.ipynb): 用配置和小张量实验解释 hidden size、attention head、MHA/GQA/MQA、RoPE、参数量和 KV cache 公式。
 - [15_rag_evaluation_serving_patterns.ipynb](./15_rag_evaluation_serving_patterns.ipynb): 用轻量 TF-IDF 检索练 RAG 流程、chunk/context budget、Recall@k/MRR、引用检查，以及 TTFT/TPOT/吞吐等服务化指标。
+- [16_rag_from_scratch_principles.ipynb](./16_rag_from_scratch_principles.ipynb): 不依赖框架或向量库，从原始文档手写 chunk、词袋向量、cosine 检索、context 组装、引用检查和 query rewrite，并映射到常见 RAG 框架，突出底层原理。
 
 ## 魔搭 Notebook 建议
 
