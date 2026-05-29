@@ -28,6 +28,7 @@ pinned: false
 - [principles/README.md](./principles/README.md): 大模型原理练习路线，覆盖 next-token loss、label shift、perplexity、decoder block 手写、RMSNorm、SwiGLU、SFT、DPO、偏好对齐、评测、架构家族、MoE 和长上下文。
 - [text/README.md](./text/README.md): 文本模型 Hugging Face 代码讲解，从 `pipeline` 自动配置逐步拆到 tokenizer、model、generation config、streamer、KV cache、chat template 输入边界和 decoding 策略。`text/00` 到 `text/05` 同时提供 `.py` 脚本和 `.ipynb` 学习版 notebook，`text/06` 到 `text/07` 是面试实践 notebook。
 - [advanced/README.md](./advanced/README.md): 文本大模型高级教程，覆盖量化、LoRA 微调、KV cache、batching、prefill/decode、Transformer 内部结构、RAG 原理、RAG 评测服务化和部署面试高频问题。
+- [speech/README.md](./speech/README.md): 语音模型 TTS 学习教程，用 `microsoft/speecht5_tts` 拆解小模型合成链路，再用 `openbmb/VoxCPM2` 体验 2B 参数、多语言、48kHz、音色设计和克隆能力。
 - [deployment/README.md](./deployment/README.md): 大模型部署框架和优化框架学习路线，覆盖 vLLM、TGI、SGLang、TensorRT-LLM、llama.cpp、Triton、Ray Serve、KServe、BentoML、FlashAttention、FlashInfer、ONNX Runtime、torch.compile 等。
 
 ## 面试向理论笔记
