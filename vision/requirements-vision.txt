@@ -1,0 +1,6 @@
+transformers
+accelerate>=1.0.0
+modelscope>=1.20.0
+qwen-vl-utils>=0.0.8
+pillow
+torchvision
