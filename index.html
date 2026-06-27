@@ -1,0 +1,951 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Practise In Hand 教程索引</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef2f1;
+      --surface: #ffffff;
+      --ink: #102023;
+      --muted: #617175;
+      --line: #d6dedc;
+      --teal: #007c76;
+      --red: #c94f3d;
+      --gold: #9b7a13;
+      --blue: #315f9f;
+      --violet: #6d5798;
+      --green: #4b7f52;
+      --shadow: 0 18px 45px rgba(16, 32, 35, 0.08);
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --sans: Inter, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(90deg, rgba(16, 32, 35, 0.045) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(16, 32, 35, 0.035) 1px, transparent 1px),
+        var(--bg);
+      background-size: 28px 28px;
+      color: var(--ink);
+      font-family: var(--sans);
+      letter-spacing: 0;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr);
+      gap: 28px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+
+    .title-block {
+      padding: 28px 0 12px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 18px;
+      height: 2px;
+      background: var(--red);
+    }
+
+    h1 {
+      max-width: 840px;
+      margin: 14px 0 12px;
+      font-size: clamp(32px, 5vw, 64px);
+      line-height: 0.96;
+      font-weight: 760;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.75;
+    }
+
+    .route-map {
+      position: relative;
+      min-height: 220px;
+      overflow: hidden;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: var(--shadow);
+      border-radius: 8px;
+    }
+
+    .route-map svg {
+      width: 100%;
+      height: 100%;
+      min-height: 180px;
+      display: block;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 22px 0;
+    }
+
+    .stat {
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+      border-radius: 8px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      margin: 16px 0 24px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: rgba(238, 242, 241, 0.92);
+      backdrop-filter: blur(14px);
+      border-radius: 8px;
+    }
+
+    .search {
+      width: 100%;
+      height: 44px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 0 14px;
+      font: 15px var(--sans);
+      outline: none;
+    }
+
+    .search:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(0, 124, 118, 0.14);
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .filter {
+      min-height: 36px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 0 12px;
+      font: 13px var(--sans);
+      cursor: pointer;
+    }
+
+    .filter:focus-visible {
+      outline: 3px solid rgba(0, 124, 118, 0.18);
+      outline-offset: 2px;
+    }
+
+    .filter.active {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .section {
+      margin-top: 22px;
+      padding: 22px 0 4px;
+      border-top: 2px solid var(--ink);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 14px;
+    }
+
+    .section h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .section p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .section-count {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .item {
+      position: relative;
+      min-height: 142px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 8px;
+      box-shadow: 0 1px 0 rgba(16, 32, 35, 0.04);
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+
+    .item::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: var(--accent, var(--teal));
+      border-radius: 8px 0 0 8px;
+    }
+
+    .item:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--accent, var(--teal)) 58%, var(--line));
+      box-shadow: 0 12px 28px rgba(16, 32, 35, 0.09);
+    }
+
+    .item:focus-within {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(0, 124, 118, 0.14);
+    }
+
+    .item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: #f7faf9;
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .item h3 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    .item h3 a {
+      outline: none;
+    }
+
+    .item h3 a::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+    }
+
+    .desc {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .path {
+      margin-top: auto;
+      color: #435357;
+      font-family: var(--mono);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .mini-link {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--ink);
+      background: #f9fbfb;
+      font-size: 12px;
+    }
+
+    .mini-link:hover {
+      border-color: var(--accent, var(--teal));
+      color: var(--accent, var(--teal));
+    }
+
+    .accent-teal { --accent: var(--teal); }
+    .accent-red { --accent: var(--red); }
+    .accent-gold { --accent: var(--gold); }
+    .accent-blue { --accent: var(--blue); }
+    .accent-violet { --accent: var(--violet); }
+    .accent-green { --accent: var(--green); }
+
+    .empty {
+      display: none;
+      margin: 22px 0;
+      padding: 18px;
+      border: 1px dashed var(--muted);
+      border-radius: 8px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .footer {
+      margin-top: 34px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 920px) {
+      .masthead,
+      .toolbar,
+      .section-head {
+        grid-template-columns: 1fr;
+      }
+
+      .stats,
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filters {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .page {
+        width: min(100% - 20px, 1180px);
+        padding-top: 18px;
+      }
+
+      .stats,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .route-map {
+        min-height: 160px;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .item {
+        transition: none;
+      }
+
+      .item:hover {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="masthead">
+      <div class="title-block">
+        <div class="eyebrow">Practise In Hand</div>
+        <h1>大模型部署学习教程索引</h1>
+        <p class="subtitle">按学习路线整理仓库里的 notebooks、脚本和说明文档：从 ModelScope 运行入口，到模型原理、文本部署、语音、视觉、部署框架和 Agent 实战。</p>
+      </div>
+      <div class="route-map" aria-label="学习路线图">
+        <svg viewBox="0 0 360 220" role="img" aria-labelledby="map-title map-desc">
+          <title id="map-title">教程学习路线</title>
+          <desc id="map-desc">从入口实验台连接到原理、文本、语音、视觉、部署和 Agent 主题。</desc>
+          <rect x="18" y="22" width="96" height="34" rx="6" fill="#102023"></rect>
+          <text x="66" y="44" text-anchor="middle" fill="#fff" font-size="13" font-family="system-ui">入口</text>
+          <path d="M114 39 H168 V94 H224" fill="none" stroke="#617175" stroke-width="2"></path>
+          <path d="M114 39 H168 V150 H224" fill="none" stroke="#617175" stroke-width="2"></path>
+          <path d="M66 56 V104 H132" fill="none" stroke="#617175" stroke-width="2"></path>
+          <path d="M66 56 V168 H132" fill="none" stroke="#617175" stroke-width="2"></path>
+          <rect x="132" y="86" width="92" height="34" rx="6" fill="#007c76"></rect>
+          <text x="178" y="108" text-anchor="middle" fill="#fff" font-size="13" font-family="system-ui">原理</text>
+          <rect x="132" y="150" width="92" height="34" rx="6" fill="#315f9f"></rect>
+          <text x="178" y="172" text-anchor="middle" fill="#fff" font-size="13" font-family="system-ui">文本</text>
+          <rect x="224" y="78" width="104" height="34" rx="6" fill="#c94f3d"></rect>
+          <text x="276" y="100" text-anchor="middle" fill="#fff" font-size="13" font-family="system-ui">语音/视觉</text>
+          <rect x="224" y="134" width="104" height="34" rx="6" fill="#9b7a13"></rect>
+          <text x="276" y="156" text-anchor="middle" fill="#fff" font-size="13" font-family="system-ui">部署/Agent</text>
+        </svg>
+      </div>
+    </header>
+
+    <section class="stats" aria-label="教程数量概览">
+      <div class="stat"><strong>38</strong><span>notebooks</span></div>
+      <div class="stat"><strong>8</strong><span>学习主题</span></div>
+      <div class="stat"><strong>8</strong><span>README 路线</span></div>
+      <div class="stat"><strong>8</strong><span>脚本/笔记补充</span></div>
+    </section>
+
+    <nav class="toolbar" aria-label="索引筛选">
+      <input id="search" class="search" type="search" placeholder="搜索：RAG、KV cache、VoxCPM2、LangGraph..." aria-label="搜索教程">
+      <div class="filters" role="group" aria-label="按类型筛选">
+        <button class="filter active" type="button" data-filter="all">全部</button>
+        <button class="filter" type="button" data-filter="notebook">Notebook</button>
+        <button class="filter" type="button" data-filter="readme">README</button>
+        <button class="filter" type="button" data-filter="script">脚本</button>
+        <button class="filter" type="button" data-filter="note">笔记</button>
+      </div>
+    </nav>
+
+    <div id="empty" class="empty">没有匹配的教程。换一个关键词或切回“全部”。</div>
+
+    <section class="section" data-section>
+      <div class="section-head">
+        <div>
+          <h2>入口和总览</h2>
+          <p>先跑通 ModelScope Notebook 和 Gradio 实验台，再进入分主题教程。</p>
+        </div>
+        <span class="section-count">3 entries</span>
+      </div>
+      <div class="grid">
+        <article class="item accent-teal" data-kind="notebook" data-search="modelscope interactive notebook gradio qwen 部署 实验台">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="modelscope_interactive_notebook.ipynb">魔搭 ModelScope 交互式大模型部署实验台</a></h3>
+          <p class="desc">一键安装依赖、设置 ModelScope 模型源，并启动可交互的 Gradio 实验台。</p>
+          <div class="path">modelscope_interactive_notebook.ipynb</div>
+        </article>
+        <article class="item accent-teal" data-kind="script" data-search="app gradio qwen text demo model deployment">
+          <div class="item-top"><span class="badge">Python</span></div>
+          <h3><a href="app.py">Gradio 文本部署实验台</a></h3>
+          <p class="desc">默认使用 Qwen 小模型，适合边看理论边运行文本模型实验。</p>
+          <div class="path">app.py</div>
+        </article>
+        <article class="item accent-teal" data-kind="readme" data-search="readme root 学习主线 官方参考 部署">
+          <div class="item-top"><span class="badge">README</span></div>
+          <h3><a href="README.md">仓库总说明</a></h3>
+          <p class="desc">仓库目标、当前实验、学习主线和官方参考入口。</p>
+          <div class="path">README.md</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" data-section>
+      <div class="section-head">
+        <div>
+          <h2>模型原理</h2>
+          <p>从 next-token loss 到手写 decoder block，再到对齐、MoE 和长上下文。</p>
+        </div>
+        <span class="section-count">5 entries</span>
+      </div>
+      <div class="grid">
+        <article class="item accent-green" data-kind="readme" data-search="principles readme 原理 路线 transformer dpo moe">
+          <div class="item-top"><span class="badge">README</span></div>
+          <h3><a href="principles/README.md">大模型原理练习路线</a></h3>
+          <p class="desc">覆盖损失、perplexity、decoder block、SFT、DPO、评测和架构家族。</p>
+          <div class="path">principles/README.md</div>
+        </article>
+        <article class="item accent-green" data-kind="notebook" data-search="next token loss label shift perplexity">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="principles/00_next_token_loss_perplexity.ipynb">00 Next-token loss、label shift 和 perplexity</a></h3>
+          <p class="desc">理解语言模型训练目标和困惑度的计算边界。</p>
+          <div class="path">principles/00_next_token_loss_perplexity.ipynb</div>
+        </article>
+        <article class="item accent-green" data-kind="notebook" data-search="transformer decoder block rmsnorm swiglu attention">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="principles/01_transformer_decoder_block_from_scratch.ipynb">01 从零手写一个 Transformer decoder block</a></h3>
+          <p class="desc">用小张量拆解 RMSNorm、Attention、MLP 和 residual 结构。</p>
+          <div class="path">principles/01_transformer_decoder_block_from_scratch.ipynb</div>
+        </article>
+        <article class="item accent-green" data-kind="notebook" data-search="sft dpo alignment evaluation preference">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="principles/02_alignment_dpo_evaluation_principles.ipynb">02 SFT、偏好对齐、DPO 和评测原理</a></h3>
+          <p class="desc">把对齐训练、偏好数据和评测指标连成一条线。</p>
+          <div class="path">principles/02_alignment_dpo_evaluation_principles.ipynb</div>
+        </article>
+        <article class="item accent-green" data-kind="notebook" data-search="architecture families moe long context training objective">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="principles/03_architecture_families_moe_long_context.ipynb">03 架构家族、训练目标、MoE 和长上下文</a></h3>
+          <p class="desc">比较 dense、MoE、长上下文扩展和常见训练目标。</p>
+          <div class="path">principles/03_architecture_families_moe_long_context.ipynb</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" data-section>
+      <div class="section-head">
+        <div>
+          <h2>文本模型基础</h2>
+          <p>从 pipeline 自动配置拆到 tokenizer、模型、streaming、KV cache 和 decoding。</p>
+        </div>
+        <span class="section-count">11 entries</span>
+      </div>
+      <div class="grid">
+        <article class="item accent-blue" data-kind="readme" data-search="text readme hugging face tokenizer model generation streaming kv cache">
+          <div class="item-top"><span class="badge">README</span></div>
+          <h3><a href="text/README.md">文本模型 Hugging Face 代码讲解</a></h3>
+          <p class="desc">从自动加载逐步拆到输入边界、生成参数和面试记忆线。</p>
+          <div class="path">text/README.md</div>
+        </article>
+        <article class="item accent-blue" data-kind="notebook" data-search="pipeline auto qwen model tokenizer">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="text/00_pipeline_auto.ipynb">00 pipeline 自动配置</a></h3>
+          <p class="desc">用最短路径理解 pipeline 背后自动完成的配置。</p>
+          <div class="links"><a class="mini-link" href="text/00_pipeline_auto.py">脚本版</a></div>
+        </article>
+        <article class="item accent-blue" data-kind="notebook" data-search="auto tokenizer model input ids attention mask">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="text/01_auto_tokenizer_model.ipynb">01 tokenizer + model</a></h3>
+          <p class="desc">拆开 tokenizer 和 AutoModelForCausalLM 的基本调用。</p>
+          <div class="links"><a class="mini-link" href="text/01_auto_tokenizer_model.py">脚本版</a></div>
+        </article>
+        <article class="item accent-blue" data-kind="notebook" data-search="configuration auto config generation config device map">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="text/02_split_configuration.ipynb">02 模块分开配置</a></h3>
+          <p class="desc">把 config、tokenizer、model、generation config 分开观察。</p>
+          <div class="links"><a class="mini-link" href="text/02_split_configuration.py">脚本版</a></div>
+        </article>
+        <article class="item accent-blue" data-kind="notebook" data-search="streaming stopping streamer stop criteria">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="text/03_streaming_and_stopping.ipynb">03 streaming + stopping</a></h3>
+          <p class="desc">观察流式输出、停止条件和服务端响应体验。</p>
+          <div class="links"><a class="mini-link" href="text/03_streaming_and_stopping.py">脚本版</a></div>
+        </article>
+        <article class="item accent-blue" data-kind="notebook" data-search="forward logits kv cache past key values">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="text/04_forward_logits_kv_cache.ipynb">04 forward + logits + KV cache</a></h3>
+          <p class="desc">看一次 forward 输出、logits 形状和 past_key_values。</p>
+          <div class="links"><a class="mini-link" href="text/04_forward_logits_kv_cache.py">脚本版</a></div>
+        </article>
+        <article class="item accent-blue" data-kind="notebook" data-search="architecture intermediates hidden states attention hooks">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="text/05_architecture_and_intermediates.ipynb">05 架构 + 中间态输出</a></h3>
+          <p class="desc">查看模型结构、hidden states、attention 和中间激活。</p>
+          <div class="links"><a class="mini-link" href="text/05_architecture_and_intermediates.py">脚本版</a></div>
+        </article>
+        <article class="item accent-blue" data-kind="notebook" data-search="tokenizer chat template edge cases input boundary">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="text/06_tokenizer_chat_template_edge_cases.ipynb">06 tokenizer、chat template 和输入边界</a></h3>
+          <p class="desc">处理 pad/eos、chat template、多轮消息和特殊输入边界。</p>
+          <div class="path">text/06_tokenizer_chat_template_edge_cases.ipynb</div>
+        </article>
+        <article class="item accent-blue" data-kind="notebook" data-search="decoding strategies temperature top p beam search">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="text/07_decoding_strategies.ipynb">07 decoding 策略和生成参数</a></h3>
+          <p class="desc">比较 greedy、sampling、temperature、top-p 和 beam search。</p>
+          <div class="path">text/07_decoding_strategies.ipynb</div>
+        </article>
+        <article class="item accent-blue" data-kind="note" data-search="qwen blog halo markdown text basic">
+          <div class="item-top"><span class="badge">Markdown</span></div>
+          <h3><a href="text/qwen2_0_5b_basic_blog_halo.md">Qwen2 0.5B 基础讲解稿</a></h3>
+          <p class="desc">面向博客发布的文本模型入门讲解稿。</p>
+          <div class="path">text/qwen2_0_5b_basic_blog_halo.md</div>
+        </article>
+        <article class="item accent-blue" data-kind="script" data-search="python scripts text companion demos">
+          <div class="item-top"><span class="badge">Scripts</span></div>
+          <h3><a href="text/00_pipeline_auto.py">文本教程脚本版合集</a></h3>
+          <p class="desc">00 到 05 都有 Python 脚本版，方便在终端里快速复现实验。</p>
+          <div class="links">
+            <a class="mini-link" href="text/01_auto_tokenizer_model.py">01</a>
+            <a class="mini-link" href="text/02_split_configuration.py">02</a>
+            <a class="mini-link" href="text/03_streaming_and_stopping.py">03</a>
+            <a class="mini-link" href="text/04_forward_logits_kv_cache.py">04</a>
+            <a class="mini-link" href="text/05_architecture_and_intermediates.py">05</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" data-section>
+      <div class="section-head">
+        <div>
+          <h2>文本高级和 RAG</h2>
+          <p>围绕量化、LoRA、KV cache、Transformer 内部、RAG、评测和面试题展开。</p>
+        </div>
+        <span class="section-count">8 entries</span>
+      </div>
+      <div class="grid">
+        <article class="item accent-violet" data-kind="readme" data-search="advanced readme quantization lora rag serving interview">
+          <div class="item-top"><span class="badge">README</span></div>
+          <h3><a href="advanced/README.md">文本大模型高级教程</a></h3>
+          <p class="desc">高级主题总览、推荐运行方式和 ModelScope Notebook 建议。</p>
+          <div class="path">advanced/README.md</div>
+        </article>
+        <article class="item accent-violet" data-kind="notebook" data-search="quantization memory speed dtype 8bit 4bit">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="advanced/10_quantization_memory_speed.ipynb">10 量化、显存和速度</a></h3>
+          <p class="desc">比较 dtype、8bit/4bit 量化、显存估算和生成速度。</p>
+          <div class="path">advanced/10_quantization_memory_speed.ipynb</div>
+        </article>
+        <article class="item accent-violet" data-kind="notebook" data-search="lora finetuning sft adapter peft">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="advanced/11_lora_finetuning_sft.ipynb">11 LoRA 微调 SFT</a></h3>
+          <p class="desc">用最小 SFT 微调理解 adapter、可训练参数和保存加载。</p>
+          <div class="path">advanced/11_lora_finetuning_sft.ipynb</div>
+        </article>
+        <article class="item accent-violet" data-kind="notebook" data-search="kv cache batching prefill decode throughput">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="advanced/12_kv_cache_batching_prefill_decode.ipynb">12 KV cache、batching、prefill 和 decode</a></h3>
+          <p class="desc">拆解服务推理里的吞吐、TTFT、TPOT 和 batch padding。</p>
+          <div class="path">advanced/12_kv_cache_batching_prefill_decode.ipynb</div>
+        </article>
+        <article class="item accent-violet" data-kind="notebook" data-search="interview drills deployment formulas questions">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="advanced/13_interview_drills.ipynb">13 文本大模型部署面试检查清单</a></h3>
+          <p class="desc">高频问题、公式和可运行检查代码。</p>
+          <div class="path">advanced/13_interview_drills.ipynb</div>
+        </article>
+        <article class="item accent-violet" data-kind="notebook" data-search="transformer internals attention rope gqa mqa hidden size">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="advanced/14_transformer_internals_attention_rope_gqa.ipynb">14 Transformer 内部结构、Attention、RoPE 和 GQA</a></h3>
+          <p class="desc">用配置和小张量解释 head、RoPE、参数量和 KV cache 公式。</p>
+          <div class="path">advanced/14_transformer_internals_attention_rope_gqa.ipynb</div>
+        </article>
+        <article class="item accent-violet" data-kind="notebook" data-search="rag evaluation serving patterns tfidf recall mrr citation">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="advanced/15_rag_evaluation_serving_patterns.ipynb">15 RAG、评测和服务化面试链路</a></h3>
+          <p class="desc">用轻量检索练 RAG 流程、Recall@k、MRR 和引用检查。</p>
+          <div class="path">advanced/15_rag_evaluation_serving_patterns.ipynb</div>
+        </article>
+        <article class="item accent-violet" data-kind="notebook" data-search="rag from scratch principles chunk cosine query rewrite">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="advanced/16_rag_from_scratch_principles.ipynb">16 从零手写 RAG 原理</a></h3>
+          <p class="desc">不依赖框架，从 chunk、词袋向量、检索、context 到引用检查。</p>
+          <div class="path">advanced/16_rag_from_scratch_principles.ipynb</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" data-section>
+      <div class="section-head">
+        <div>
+          <h2>语音和视觉</h2>
+          <p>TTS 结构拆解、VoxCPM2、图片输入、视觉 token 和 VLM 架构观察。</p>
+        </div>
+        <span class="section-count">7 entries</span>
+      </div>
+      <div class="grid">
+        <article class="item accent-red" data-kind="readme" data-search="speech readme tts modelscope speecht5 hifigan voxcpm2">
+          <div class="item-top"><span class="badge">README</span></div>
+          <h3><a href="speech/README.md">语音模型 TTS 学习教程</a></h3>
+          <p class="desc">ModelScope 下载 SpeechT5 小模型，再直接查看 encoder、decoder、postnet 和 vocoder。</p>
+          <div class="path">speech/README.md</div>
+        </article>
+        <article class="item accent-red" data-kind="notebook" data-search="tts speech modelscope speecht5 hifigan structure encoder decoder hook">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="speech/00_tts_small_and_voxcpm2.ipynb">00 语音合成 TTS：小模型 + 内部结构拆解</a></h3>
+          <p class="desc">用 SpeechT5 生成 WAV、计算 RTF，并用 module tree 和 hook 查看内部结构。</p>
+          <div class="links">
+            <a class="mini-link" href="speech/00_tts_small_and_voxcpm2.py">脚本版</a>
+            <a class="mini-link" href="speech/requirements-speech.txt">依赖</a>
+          </div>
+        </article>
+        <article class="item accent-red" data-kind="note" data-search="tts principles theory code diagram mermaid speecht5 acoustic model vocoder waveform rtf">
+          <div class="item-top"><span class="badge">Markdown</span></div>
+          <h3><a href="speech/01_tts_principles_theory_code.md">01 TTS 原理解释图：边理论边看模型结构</a></h3>
+          <p class="desc">用一张 TTS 总图串起 processor、SpeechT5、speaker embedding、vocoder 和 RTF。</p>
+          <div class="path">speech/01_tts_principles_theory_code.md</div>
+        </article>
+        <article class="item accent-red" data-kind="script" data-search="speech python tts script modelscope voxcpm2">
+          <div class="item-top"><span class="badge">Python</span></div>
+          <h3><a href="speech/00_tts_small_and_voxcpm2.py">TTS 脚本版</a></h3>
+          <p class="desc">默认运行 ModelScope TTS，小模型；设置 RUN_VOXCPM2=1 后运行大模型。</p>
+          <div class="path">speech/00_tts_small_and_voxcpm2.py</div>
+        </article>
+        <article class="item accent-gold" data-kind="readme" data-search="vision readme vlm qwen gemma image understanding">
+          <div class="item-top"><span class="badge">README</span></div>
+          <h3><a href="vision/README.md">多模态模型识图教程</a></h3>
+          <p class="desc">Qwen2.5-VL 实跑图片输入，再与 Gemma 4 原生多模态能力对比。</p>
+          <div class="path">vision/README.md</div>
+        </article>
+        <article class="item accent-gold" data-kind="notebook" data-search="vlm image token qwen gemma4 pixel values image_grid_thw">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="vision/00_how_vlm_sees_images_qwen_gemma4.ipynb">00 模型为什么能识图</a></h3>
+          <p class="desc">从像素到视觉 token，再到语言模型回答，观察 processor 和内部结构。</p>
+          <div class="links"><a class="mini-link" href="vision/requirements-vision.txt">依赖</a></div>
+        </article>
+        <article class="item accent-gold" data-kind="note" data-search="vision speech requirements modelscope dependencies">
+          <div class="item-top"><span class="badge">Deps</span></div>
+          <h3><a href="vision/requirements-vision.txt">视觉教程依赖</a></h3>
+          <p class="desc">多模态教程需要的 transformers、ModelScope 和图像处理依赖。</p>
+          <div class="links"><a class="mini-link" href="speech/requirements-speech.txt">语音依赖</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" data-section>
+      <div class="section-head">
+        <div>
+          <h2>部署框架和优化</h2>
+          <p>部署框架地图、推理优化、benchmark 设计和面试向理论笔记。</p>
+        </div>
+        <span class="section-count">4 entries</span>
+      </div>
+      <div class="grid">
+        <article class="item accent-gold" data-kind="readme" data-search="deployment readme vllm tgi sglang tensorrt triton ray kserve">
+          <div class="item-top"><span class="badge">README</span></div>
+          <h3><a href="deployment/README.md">模型部署与优化学习路线</a></h3>
+          <p class="desc">推理引擎、服务平台、优化技术和面试高频主线。</p>
+          <div class="path">deployment/README.md</div>
+        </article>
+        <article class="item accent-gold" data-kind="notebook" data-search="deployment framework landscape vllm tgi sglang triton ray serve">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="deployment/00_deployment_framework_landscape.ipynb">00 部署框架地图和选型</a></h3>
+          <p class="desc">比较 vLLM、TGI、SGLang、TensorRT-LLM、Triton 和服务平台。</p>
+          <div class="path">deployment/00_deployment_framework_landscape.ipynb</div>
+        </article>
+        <article class="item accent-gold" data-kind="notebook" data-search="optimization frameworks benchmarking flashattention onnx torch compile">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="deployment/01_optimization_frameworks_and_benchmarking.ipynb">01 优化框架、瓶颈定位和 Benchmark 设计</a></h3>
+          <p class="desc">梳理量化、attention/KV 优化、batch 调度、编译和可观测性。</p>
+          <div class="path">deployment/01_optimization_frameworks_and_benchmarking.ipynb</div>
+        </article>
+        <article class="item accent-gold" data-kind="note" data-search="interview theory deployment asr tts video memory metrics">
+          <div class="item-top"><span class="badge">Markdown</span></div>
+          <h3><a href="notes/deployment_interview_theory.md">大模型部署核心理论笔记</a></h3>
+          <p class="desc">文本、音频、视频部署链路、显存估算、性能指标和常见问答。</p>
+          <div class="path">notes/deployment_interview_theory.md</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" data-section>
+      <div class="section-head">
+        <div>
+          <h2>AI Agent 教程</h2>
+          <p>从 Agent 核心概念到 LangChain、LangGraph、AutoGen、CrewAI 和项目实战。</p>
+        </div>
+        <span class="section-count">16 entries</span>
+      </div>
+      <div class="grid">
+        <article class="item accent-teal" data-kind="readme" data-search="ai agent readme langchain langgraph autogen crewai rag project">
+          <div class="item-top"><span class="badge">README</span></div>
+          <h3><a href="ai-agent-tutorial/README.md">AI Agent 架构与框架教程</a></h3>
+          <p class="desc">Agent 学习路径、模型说明、硬件要求和参考资源。</p>
+          <div class="path">ai-agent-tutorial/README.md</div>
+        </article>
+        <article class="item accent-teal" data-kind="notebook" data-search="what is ai agent concept components">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="ai-agent-tutorial/01_core_concepts/00_what_is_agent.ipynb">00 什么是 AI Agent？</a></h3>
+          <p class="desc">从概念到核心组件，建立 Agent 的基本心智模型。</p>
+          <div class="path">ai-agent-tutorial/01_core_concepts/00_what_is_agent.ipynb</div>
+        </article>
+        <article class="item accent-teal" data-kind="notebook" data-search="react chain of thought cot reasoning">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="ai-agent-tutorial/01_core_concepts/01_react_and_cot.ipynb">01 ReAct 与 Chain-of-Thought</a></h3>
+          <p class="desc">理解 Agent 的推理、行动和观察循环。</p>
+          <div class="path">ai-agent-tutorial/01_core_concepts/01_react_and_cot.ipynb</div>
+        </article>
+        <article class="item accent-teal" data-kind="notebook" data-search="tool use function calling agent tools">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="ai-agent-tutorial/01_core_concepts/02_tool_use_and_function_calling.ipynb">02 工具调用与 Function Calling</a></h3>
+          <p class="desc">扩展 Agent 能力边界，连接外部工具和函数接口。</p>
+          <div class="path">ai-agent-tutorial/01_core_concepts/02_tool_use_and_function_calling.ipynb</div>
+        </article>
+        <article class="item accent-teal" data-kind="notebook" data-search="memory systems short long term agent">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="ai-agent-tutorial/01_core_concepts/03_memory_systems.ipynb">03 Agent 记忆系统</a></h3>
+          <p class="desc">从短期记忆到长期记忆，观察上下文管理方式。</p>
+          <div class="path">ai-agent-tutorial/01_core_concepts/03_memory_systems.ipynb</div>
+        </article>
+        <article class="item accent-teal" data-kind="notebook" data-search="planning reflection autonomous decision">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="ai-agent-tutorial/01_core_concepts/04_planning_and_reflection.ipynb">04 规划与反思</a></h3>
+          <p class="desc">学习 Agent 的自主决策、计划和自我修正能力。</p>
+          <div class="path">ai-agent-tutorial/01_core_concepts/04_planning_and_reflection.ipynb</div>
+        </article>
+        <article class="item accent-blue" data-kind="notebook" data-search="langchain basics agent framework">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="ai-agent-tutorial/02_frameworks/00_langchain_basics.ipynb">00 LangChain 基础</a></h3>
+          <p class="desc">进入 Agent 开发的第一站，理解链、工具和调用组织。</p>
+          <div class="path">ai-agent-tutorial/02_frameworks/00_langchain_basics.ipynb</div>
+        </article>
+        <article class="item accent-blue" data-kind="notebook" data-search="langgraph workflow state graph agent">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="ai-agent-tutorial/02_frameworks/01_langgraph_workflows.ipynb">01 LangGraph 工作流</a></h3>
+          <p class="desc">用图和状态机组织更复杂的 Agent 工作流。</p>
+          <div class="path">ai-agent-tutorial/02_frameworks/01_langgraph_workflows.ipynb</div>
+        </article>
+        <article class="item accent-blue" data-kind="notebook" data-search="autogen multi agent microsoft collaboration">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="ai-agent-tutorial/02_frameworks/02_autogen_multi_agent.ipynb">02 AutoGen 多 Agent 协作</a></h3>
+          <p class="desc">体验微软 AutoGen 的多 Agent 对话与协作模式。</p>
+          <div class="path">ai-agent-tutorial/02_frameworks/02_autogen_multi_agent.ipynb</div>
+        </article>
+        <article class="item accent-blue" data-kind="notebook" data-search="crewai collaboration role driven agent">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="ai-agent-tutorial/02_frameworks/03_crewai_collaboration.ipynb">03 CrewAI 角色驱动协作</a></h3>
+          <p class="desc">用角色、任务和流程组织 Agent 团队。</p>
+          <div class="path">ai-agent-tutorial/02_frameworks/03_crewai_collaboration.ipynb</div>
+        </article>
+        <article class="item accent-violet" data-kind="notebook" data-search="multi agent systems design collaboration pattern">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="ai-agent-tutorial/03_advanced/00_multi_agent_systems.ipynb">00 多 Agent 系统设计</a></h3>
+          <p class="desc">梳理多 Agent 协作模式、任务分解和协调策略。</p>
+          <div class="path">ai-agent-tutorial/03_advanced/00_multi_agent_systems.ipynb</div>
+        </article>
+        <article class="item accent-violet" data-kind="notebook" data-search="rag agent retrieval augmented generation">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="ai-agent-tutorial/03_advanced/01_rag_agent.ipynb">01 RAG Agent</a></h3>
+          <p class="desc">把检索增强生成接入 Agent 决策流程。</p>
+          <div class="path">ai-agent-tutorial/03_advanced/01_rag_agent.ipynb</div>
+        </article>
+        <article class="item accent-violet" data-kind="notebook" data-search="advanced tool use function calling">
+          <div class="item-top"><span class="badge">Notebook</span></div>
+          <h3><a href="ai-agent-tutorial/03_advanced/02_tool_use_advanced.ipynb">02 高级工具使用与 Function Calling</a></h3>
+          <p class="desc">处理更复杂的工具编排、参数约束和调用策略。</p>
+          <div class="path">ai-agent-tutorial/03_advanced/02_tool_use_advanced.ipynb</div>
+        </article>
+        <article class="item accent-red" data-kind="notebook" data-search="project knowledge base qa agent">
+          <div class="item-top"><span class="badge">Project</span></div>
+          <h3><a href="ai-agent-tutorial/04_projects/00_knowledge_base_qa.ipynb">项目一：知识库问答系统</a></h3>
+          <p class="desc">把检索、问答和 Agent 编排整合成小型项目。</p>
+          <div class="path">ai-agent-tutorial/04_projects/00_knowledge_base_qa.ipynb</div>
+        </article>
+        <article class="item accent-red" data-kind="notebook" data-search="project research assistant agent">
+          <div class="item-top"><span class="badge">Project</span></div>
+          <h3><a href="ai-agent-tutorial/04_projects/01_research_assistant.ipynb">项目二：智能研究助手</a></h3>
+          <p class="desc">构建可以收集信息、整理证据并输出研究结果的 Agent。</p>
+          <div class="path">ai-agent-tutorial/04_projects/01_research_assistant.ipynb</div>
+        </article>
+        <article class="item accent-teal" data-kind="note" data-search="agent requirements dependencies qwen modelscope">
+          <div class="item-top"><span class="badge">Deps</span></div>
+          <h3><a href="ai-agent-tutorial/requirements.txt">AI Agent 教程依赖</a></h3>
+          <p class="desc">Agent 教程运行所需的 Python 包。</p>
+          <div class="path">ai-agent-tutorial/requirements.txt</div>
+        </article>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>本索引使用仓库内相对路径，适合直接从根目录打开。新增教程后，把对应链接加入同主题分区即可。</div>
+    </footer>
+  </main>
+
+  <script>
+    const searchInput = document.querySelector("#search");
+    const filters = Array.from(document.querySelectorAll(".filter"));
+    const items = Array.from(document.querySelectorAll(".item"));
+    const sections = Array.from(document.querySelectorAll("[data-section]"));
+    const empty = document.querySelector("#empty");
+    let activeFilter = "all";
+
+    function normalizedText(value) {
+      return value.trim().toLowerCase();
+    }
+
+    function applyFilters() {
+      const query = normalizedText(searchInput.value);
+      let visibleCount = 0;
+
+      items.forEach((item) => {
+        const kind = item.dataset.kind;
+        const haystack = normalizedText(`${item.innerText} ${item.dataset.search || ""}`);
+        const matchesKind = activeFilter === "all" || kind === activeFilter;
+        const matchesQuery = !query || haystack.includes(query);
+        const visible = matchesKind && matchesQuery;
+        item.hidden = !visible;
+        if (visible) visibleCount += 1;
+      });
+
+      sections.forEach((section) => {
+        const visibleItems = Array.from(section.querySelectorAll(".item")).filter((item) => !item.hidden);
+        section.hidden = visibleItems.length === 0;
+      });
+
+      empty.style.display = visibleCount === 0 ? "block" : "none";
+    }
+
+    filters.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeFilter = button.dataset.filter;
+        filters.forEach((item) => item.classList.toggle("active", item === button));
+        applyFilters();
+      });
+    });
+
+    searchInput.addEventListener("input", applyFilters);
+  </script>
+</body>
+</html>

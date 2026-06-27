@@ -1,19 +1,20 @@
 # 语音模型 TTS 学习教程
 
-这一部分先用一个 ModelScope 上可下载运行的小型 TTS 模型理解语音合成链路，再切到参数更大的 VoxCPM2 观察现代多语言、音色设计和克隆模型的部署差异。
+这一部分用 ModelScope 下载小型 TTS 模型，再用 Transformers 直接加载模型对象，重点不是只跑通 `pipeline`，而是能看到 TTS 模型内部结构。
 
 ```text
-00_tts_small_and_voxcpm2.ipynb / 00_tts_small_and_voxcpm2.py
+00_tts_small_and_voxcpm2.ipynb
 ```
 
 ## 模型选择
 
 | 层级 | 模型 | 用途 | 重点观察 |
 | --- | --- | --- | --- |
-| 小模型 | `damo/speech_sambert-hifigan_tts_zh-cn_16k` | 快速理解 TTS 基础链路 | 文本输入、ModelScope pipeline、Sambert 声学模型、HiFiGAN vocoder、16kHz WAV |
-| 大模型 | `OpenBMB/VoxCPM2` | 体验更接近真实应用的多语言 TTS | 2B 参数、48kHz 输出、voice design、reference audio cloning、CFG 和 diffusion steps |
+| 小模型 | `microsoft/speecht5_tts` | 跑通 TTS 基础链路 | processor、encoder、decoder、speaker embedding、postnet |
+| vocoder | `microsoft/speecht5_hifigan` | 把声学表示还原成 waveform | mel / acoustic representation 到 16kHz WAV |
+| 大模型对比 | `OpenBMB/VoxCPM2` | 后续体验现代多语言和音色控制 | 2B 参数、48kHz、voice design、reference audio cloning |
 
-小模型默认从 ModelScope 下载，适合在大陆网络环境里先把 TTS 链路跑通。VoxCPM2 也先通过 ModelScope 下载到本地缓存，再从本地目录加载，重点看现代 TTS 部署要点：显存、冷启动、采样率、参考音频质量、长文本切分和实时因子。
+默认 notebook 先使用 `microsoft/speecht5_tts`。它比 VoxCPM2 小很多，并且可以通过 `SpeechT5ForTextToSpeech` 直接查看内部模块，适合教学和面试复盘。这个默认模型更适合英文示例；如果你换成中文 TTS 模型，再把 notebook 里的 `SYNTH_TEXT` 改成中文。
 
 ## 推荐运行方式
 
@@ -30,25 +31,10 @@ pip install -r speech/requirements-speech.txt
 speech/00_tts_small_and_voxcpm2.ipynb
 ```
 
-脚本版默认只运行小模型：
+如果要替换 ModelScope 模型 ID：
 
 ```bash
-python speech/00_tts_small_and_voxcpm2.py
-```
-
-如果要运行 VoxCPM2：
-
-```bash
-RUN_VOXCPM2=1 python speech/00_tts_small_and_voxcpm2.py
-```
-
-第一次运行会下载模型权重。VoxCPM2 权重较大，建议在有 GPU 或 Apple Silicon MPS 的环境里运行；CPU 也可以用于理解代码，但速度会明显变慢。
-
-如果要替换模型，可以用环境变量指定 ModelScope 模型 ID：
-
-```bash
-SMALL_TTS_MODEL_ID=damo/speech_sambert-hifigan_tts_zh-cn_16k python speech/00_tts_small_and_voxcpm2.py
-VOXCPM2_MODEL_ID=OpenBMB/VoxCPM2 RUN_VOXCPM2=1 python speech/00_tts_small_and_voxcpm2.py
+SMALL_TTS_MODEL_ID=microsoft/speecht5_tts VOCODER_MODEL_ID=microsoft/speecht5_hifigan jupyter notebook
 ```
 
 ## 学习主线
@@ -57,17 +43,25 @@ VOXCPM2_MODEL_ID=OpenBMB/VoxCPM2 RUN_VOXCPM2=1 python speech/00_tts_small_and_vo
 
 ```text
 文本
--> 文本规范化 / tokenizer / processor
--> 说话人条件 speaker embedding 或参考音频
--> 声学模型生成 mel / latent / acoustic representation
--> vocoder / decoder 生成 waveform
--> 保存 WAV / 播放 / 评估时延和质量
+-> processor / tokenizer 转成 input_ids
+-> speaker embedding 指定谁在说
+-> SpeechT5 encoder-decoder 生成声学表示
+-> HiFiGAN vocoder 生成 waveform
+-> 保存 WAV / 计算 duration 和 RTF
 ```
+
+notebook 会引导你依次查看：
+
+- `model.config`: 隐藏层维度、encoder/decoder 层数、speaker embedding 维度。
+- `model.named_children()`: 顶层模块和参数量分布。
+- `model.named_modules()`: 按关键词定位 encoder、decoder、attention、postnet。
+- forward hook: 运行时记录关键模块输入输出 shape。
+- WAV 指标：采样率、音频时长、生成耗时和 RTF。
 
 部署时重点看：
 
 - 输出采样率：16kHz、24kHz、48kHz 会直接影响音质、文件大小和后处理成本。
 - 实时因子 RTF：生成耗时 / 音频时长，小于 1 才可能实时。
+- speaker embedding：真实项目里会影响音色稳定性和克隆效果。
 - 长文本切分：长输入更容易慢、爆显存或出现音色漂移。
-- 参考音频质量：克隆场景里，干净、5 到 30 秒的参考音频通常更稳定。
-- 模型边界：小模型适合教学和轻量实验，大模型适合质量、控制和多语言能力验证。
+- 模型边界：小模型适合结构学习和轻量实验，大模型适合质量、控制和多语言能力验证。

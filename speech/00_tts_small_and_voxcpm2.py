@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import sys
 import time
 from pathlib import Path
 
@@ -24,6 +25,20 @@ SMALL_TTS_MODEL_ID = os.getenv("SMALL_TTS_MODEL_ID", "damo/speech_sambert-hifiga
 VOXCPM2_MODEL_ID = os.getenv("VOXCPM2_MODEL_ID", "OpenBMB/VoxCPM2")
 SMALL_TEXT = "语音合成会把文本转换成可以播放的波形。"
 VOXCPM_TEXT = "(年轻女性，温柔自然，语速适中) 你好，这是 VoxCPM2 的语音合成示例。"
+SAMBERTHIFIGAN_MODEL_KEYWORD = "sambert-hifigan"
+
+
+def sambert_hifigan_python_issue(model_id: str) -> str | None:
+    if SAMBERTHIFIGAN_MODEL_KEYWORD not in model_id.lower():
+        return None
+    if sys.version_info < (3, 11):
+        return None
+    return (
+        f"{model_id} uses ModelScope SambertHifigan, which requires Python <= 3.10. "
+        f"Current Python is {sys.version_info.major}.{sys.version_info.minor}. "
+        "Run the small-model section in a Python 3.10 environment, or set "
+        "RUN_SMALL_TTS=0 and use VoxCPM2 / another Python 3.11-compatible TTS model."
+    )
 
 
 def pick_torch_device() -> str:
@@ -101,6 +116,11 @@ def save_modelscope_tts_output(path: Path, output, elapsed_seconds: float) -> di
 
 
 def run_small_modelscope_tts() -> None:
+    compatibility_issue = sambert_hifigan_python_issue(SMALL_TTS_MODEL_ID)
+    if compatibility_issue:
+        print(f"Skip small ModelScope TTS: {compatibility_issue}")
+        return
+
     from modelscope.pipelines import pipeline
     from modelscope.utils.constant import Tasks
 
@@ -142,7 +162,10 @@ def run_voxcpm2() -> None:
 
 
 if __name__ == "__main__":
-    run_small_modelscope_tts()
+    if os.getenv("RUN_SMALL_TTS", "1") == "1":
+        run_small_modelscope_tts()
+    else:
+        print("Skip small ModelScope TTS. RUN_SMALL_TTS is not 1.")
 
     if os.getenv("RUN_VOXCPM2") == "1":
         run_voxcpm2()
