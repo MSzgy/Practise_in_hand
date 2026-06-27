@@ -1,15 +1,17 @@
 """
 TTS learning tutorial:
 
-1. Use SpeechT5 as a small, easy-to-inspect model.
+1. Use a ModelScope Sambert + HiFiGAN model as a small runnable TTS model.
 2. Use VoxCPM2 as a larger modern multilingual TTS model.
 
-The script runs SpeechT5 by default. Set RUN_VOXCPM2=1 to run VoxCPM2.
+The script runs the small ModelScope TTS model by default.
+Set RUN_VOXCPM2=1 to run VoxCPM2.
 """
 
 from __future__ import annotations
 
 import os
+import shutil
 import time
 from pathlib import Path
 
@@ -18,7 +20,9 @@ import torch
 
 
 OUTPUT_DIR = Path("speech/outputs")
-SMALL_TEXT = "Speech synthesis turns written text into a waveform that we can play."
+SMALL_TTS_MODEL_ID = os.getenv("SMALL_TTS_MODEL_ID", "damo/speech_sambert-hifigan_tts_zh-cn_16k")
+VOXCPM2_MODEL_ID = os.getenv("VOXCPM2_MODEL_ID", "OpenBMB/VoxCPM2")
+SMALL_TEXT = "语音合成会把文本转换成可以播放的波形。"
 VOXCPM_TEXT = "(年轻女性，温柔自然，语速适中) 你好，这是 VoxCPM2 的语音合成示例。"
 
 
@@ -34,51 +38,92 @@ def count_parameters(model: torch.nn.Module) -> int:
     return sum(parameter.numel() for parameter in model.parameters())
 
 
-def save_wav(path: Path, waveform, sample_rate: int, elapsed_seconds: float) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    sf.write(path, waveform, sample_rate)
-    duration_seconds = len(waveform) / sample_rate
+def download_modelscope_model(model_id: str) -> str:
+    from modelscope import snapshot_download
+
+    print(f"Loading ModelScope model: {model_id}")
+    model_dir = snapshot_download(model_id)
+    print(f"ModelScope cache: {model_dir}")
+    return model_dir
+
+
+def report_wav(path: Path, elapsed_seconds: float) -> dict[str, float | str]:
+    info = sf.info(path)
+    duration_seconds = info.frames / info.samplerate if info.samplerate else 0.0
     rtf = elapsed_seconds / duration_seconds if duration_seconds else float("inf")
     print(f"saved: {path}")
-    print(f"sample_rate={sample_rate}, duration={duration_seconds:.2f}s, elapsed={elapsed_seconds:.2f}s, rtf={rtf:.2f}")
+    print(
+        f"sample_rate={info.samplerate}, duration={duration_seconds:.2f}s, "
+        f"elapsed={elapsed_seconds:.2f}s, rtf={rtf:.2f}"
+    )
+    return {
+        "path": str(path),
+        "sample_rate": info.samplerate,
+        "duration_seconds": duration_seconds,
+        "elapsed_seconds": elapsed_seconds,
+        "rtf": rtf,
+    }
 
 
-def run_speecht5() -> None:
-    from datasets import load_dataset
-    from transformers import SpeechT5ForTextToSpeech, SpeechT5HifiGan, SpeechT5Processor
+def save_wav(path: Path, waveform, sample_rate: int, elapsed_seconds: float) -> dict[str, float | str]:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    sf.write(path, waveform, sample_rate)
+    return report_wav(path, elapsed_seconds)
 
-    device = pick_torch_device()
-    print(f"SpeechT5 device: {device}")
 
-    processor = SpeechT5Processor.from_pretrained("microsoft/speecht5_tts")
-    model = SpeechT5ForTextToSpeech.from_pretrained("microsoft/speecht5_tts").to(device)
-    vocoder = SpeechT5HifiGan.from_pretrained("microsoft/speecht5_hifigan").to(device)
+def save_wav_bytes(path: Path, wav_bytes: bytes | bytearray, elapsed_seconds: float) -> dict[str, float | str]:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(bytes(wav_bytes))
+    return report_wav(path, elapsed_seconds)
 
-    embeddings_dataset = load_dataset("Matthijs/cmu-arctic-xvectors", split="validation")
-    speaker_embeddings = torch.tensor(embeddings_dataset[7306]["xvector"]).unsqueeze(0).to(device)
 
-    inputs = processor(text=SMALL_TEXT, return_tensors="pt")
-    input_ids = inputs["input_ids"].to(device)
+def save_modelscope_tts_output(path: Path, output, elapsed_seconds: float) -> dict[str, float | str]:
+    from modelscope.outputs import OutputKeys
 
-    print(f"input_ids shape: {tuple(input_ids.shape)}")
-    print(f"speaker_embeddings shape: {tuple(speaker_embeddings.shape)}")
-    print(f"acoustic model parameters: {count_parameters(model) / 1e6:.1f}M")
-    print(f"vocoder parameters: {count_parameters(vocoder) / 1e6:.1f}M")
+    wav = output
+    if isinstance(output, dict):
+        wav = output.get(OutputKeys.OUTPUT_WAV) or output.get("output_wav") or output.get("wav")
+
+    if wav is None:
+        details = output.keys() if isinstance(output, dict) else type(output)
+        raise ValueError(f"ModelScope TTS output does not contain WAV data: {details}")
+
+    if isinstance(wav, (bytes, bytearray)):
+        return save_wav_bytes(path, wav, elapsed_seconds)
+
+    if isinstance(wav, (str, os.PathLike)):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(wav, path)
+        return report_wav(path, elapsed_seconds)
+
+    sample_rate = int(output.get("sample_rate", 16_000)) if isinstance(output, dict) else 16_000
+    return save_wav(path, wav, sample_rate, elapsed_seconds)
+
+
+def run_small_modelscope_tts() -> None:
+    from modelscope.pipelines import pipeline
+    from modelscope.utils.constant import Tasks
+
+    print(f"Small TTS device hint: {pick_torch_device()}")
+    model_dir = download_modelscope_model(SMALL_TTS_MODEL_ID)
+    tts = pipeline(task=Tasks.text_to_speech, model=model_dir)
+
+    print(f"text: {SMALL_TEXT}")
 
     start = time.perf_counter()
-    with torch.inference_mode():
-        speech = model.generate_speech(input_ids, speaker_embeddings, vocoder=vocoder)
+    output = tts(input=SMALL_TEXT)
     elapsed = time.perf_counter() - start
 
-    save_wav(OUTPUT_DIR / "speecht5_demo.wav", speech.detach().cpu().numpy(), 16_000, elapsed)
+    save_modelscope_tts_output(OUTPUT_DIR / "modelscope_sambert_demo.wav", output, elapsed)
 
 
 def run_voxcpm2() -> None:
     from voxcpm import VoxCPM
 
-    print("Loading VoxCPM2. First run downloads large model weights.")
+    model_dir = download_modelscope_model(VOXCPM2_MODEL_ID)
+    print("Loading VoxCPM2 from local ModelScope cache.")
     model = VoxCPM.from_pretrained(
-        "openbmb/VoxCPM2",
+        model_dir,
         device="auto",
         load_denoiser=False,
         optimize=False,
@@ -97,7 +142,7 @@ def run_voxcpm2() -> None:
 
 
 if __name__ == "__main__":
-    run_speecht5()
+    run_small_modelscope_tts()
 
     if os.getenv("RUN_VOXCPM2") == "1":
         run_voxcpm2()

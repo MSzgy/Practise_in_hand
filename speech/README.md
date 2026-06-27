@@ -1,6 +1,6 @@
 # 语音模型 TTS 学习教程
 
-这一部分先用一个较小、结构清晰的 TTS 模型理解语音合成链路，再切到参数更大的 VoxCPM2 观察现代多语言、音色设计和克隆模型的部署差异。
+这一部分先用一个 ModelScope 上可下载运行的小型 TTS 模型理解语音合成链路，再切到参数更大的 VoxCPM2 观察现代多语言、音色设计和克隆模型的部署差异。
 
 ```text
 00_tts_small_and_voxcpm2.ipynb / 00_tts_small_and_voxcpm2.py
@@ -10,10 +10,10 @@
 
 | 层级 | 模型 | 用途 | 重点观察 |
 | --- | --- | --- | --- |
-| 小模型 | `microsoft/speecht5_tts` + `microsoft/speecht5_hifigan` | 快速理解 TTS 基础链路 | processor、speaker embedding、声学模型、vocoder、16kHz waveform |
-| 大模型 | `openbmb/VoxCPM2` | 体验更接近真实应用的多语言 TTS | 2B 参数、48kHz 输出、voice design、reference audio cloning、CFG 和 diffusion steps |
+| 小模型 | `damo/speech_sambert-hifigan_tts_zh-cn_16k` | 快速理解 TTS 基础链路 | 文本输入、ModelScope pipeline、Sambert 声学模型、HiFiGAN vocoder、16kHz WAV |
+| 大模型 | `OpenBMB/VoxCPM2` | 体验更接近真实应用的多语言 TTS | 2B 参数、48kHz 输出、voice design、reference audio cloning、CFG 和 diffusion steps |
 
-SpeechT5 更适合教学拆解，因为 Hugging Face Transformers 原生支持，加载方式和已有文本教程一致。VoxCPM2 更适合看现代 TTS 部署要点：显存、冷启动、采样率、参考音频质量、长文本切分和实时因子。
+小模型默认从 ModelScope 下载，适合在大陆网络环境里先把 TTS 链路跑通。VoxCPM2 也先通过 ModelScope 下载到本地缓存，再从本地目录加载，重点看现代 TTS 部署要点：显存、冷启动、采样率、参考音频质量、长文本切分和实时因子。
 
 ## 推荐运行方式
 
@@ -44,6 +44,13 @@ RUN_VOXCPM2=1 python speech/00_tts_small_and_voxcpm2.py
 
 第一次运行会下载模型权重。VoxCPM2 权重较大，建议在有 GPU 或 Apple Silicon MPS 的环境里运行；CPU 也可以用于理解代码，但速度会明显变慢。
 
+如果要替换模型，可以用环境变量指定 ModelScope 模型 ID：
+
+```bash
+SMALL_TTS_MODEL_ID=damo/speech_sambert-hifigan_tts_zh-cn_16k python speech/00_tts_small_and_voxcpm2.py
+VOXCPM2_MODEL_ID=OpenBMB/VoxCPM2 RUN_VOXCPM2=1 python speech/00_tts_small_and_voxcpm2.py
+```
+
 ## 学习主线
 
 语音合成可以按这条线理解：
@@ -64,4 +71,3 @@ RUN_VOXCPM2=1 python speech/00_tts_small_and_voxcpm2.py
 - 长文本切分：长输入更容易慢、爆显存或出现音色漂移。
 - 参考音频质量：克隆场景里，干净、5 到 30 秒的参考音频通常更稳定。
 - 模型边界：小模型适合教学和轻量实验，大模型适合质量、控制和多语言能力验证。
-
