@@ -2,3 +2,4 @@ modelscope>=1.20.0
 soundfile
 torchaudio
 voxcpm
+qwen-tts
